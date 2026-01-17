@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"os/signal"
 
 	gamelogic "github.com/bootdotdev/learn-pub-sub-starter/internal/gamelogic"
 	pubsub "github.com/bootdotdev/learn-pub-sub-starter/internal/pubsub"
@@ -43,8 +41,46 @@ func main() {
 	}
 	defer ch.Close()
 
-	// Wait for Ctrl+C
-	sig := make(chan os.Signal, 1)
-	signal.Notify(sig, os.Interrupt)
-	<-sig
+	gmeste := gamelogic.NewGameState(username)
+
+	for {
+		words := gamelogic.GetInput()
+		if len(words) == 0 {
+			continue
+		}
+
+		switch words[0] {
+
+		case "spawn":
+			fmt.Println("Spawning")
+			err := gmeste.CommandSpawn(words)
+			if err != nil {
+				fmt.Println(err)
+			}
+
+		case "move":
+			fmt.Println("Sending resume message")
+			_, err := gmeste.CommandMove(words)
+			if err != nil {
+				fmt.Println(err)
+			}
+
+		case "help":
+			gamelogic.PrintClientHelp()
+
+		case "status":
+			gmeste.CommandStatus()
+
+		case "spam":
+			fmt.Println("Spamming not allowed yet!")
+
+		case "quit":
+			fmt.Println("Exiting client")
+			return
+
+		default:
+			fmt.Println("Unknown command:", words[0])
+		}
+	}
+
 }

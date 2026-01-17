@@ -30,6 +30,8 @@ func main() {
 
 	gamelogic.PrintServerHelp()
 
+	pubsub.DeclareAndBind(conn, routing.ExchangePerilTopic, "game_logs", "game_logs.*", pubsub.Durable)
+
 	for {
 		words := gamelogic.GetInput()
 		if len(words) == 0 {
